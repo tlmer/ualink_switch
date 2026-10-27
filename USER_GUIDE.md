@@ -176,6 +176,20 @@ Behavior when `switch_cfg::upli_sig_parity = true`:
 Helper functions are available for all parity equations and checks
 (`upli_check_*_parity`), so a DUT-side checker can reuse the same equations.
 
+### 6.4b AuthTags half-flit signals
+
+The request, read-response, and write-response groups carry a flattened
+AuthTags half-flit sideband:
+
+- `auth_tags.tag[4]` - up to four 64-bit tags;
+- `auth_tags.valid` - one valid bit per tag;
+- `auth_tags.tag_parity[4]` - even parity per valid tag (0 if invalid);
+- `auth_tags.vld_parity` - even parity over the valid bits.
+
+The 32-byte half-flit's RTL/TL/DL position is design-dependent; the model
+exposes the signals only. Use `upli_fill_auth_tags_parity()` and
+`upli_check_auth_tags_parity()` for the parity contract.
+
 ### 6.5 N-port bank and SystemC
 
 `ualink_port_bank` builds one `ualink_upli_port` per switch port. Use

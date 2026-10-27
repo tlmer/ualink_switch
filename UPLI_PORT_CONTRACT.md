@@ -48,6 +48,27 @@ Parity: `data_parity[8]`, `auth_tag_parity`, `vld_parity`.
 
 Parity: `auth_tag_parity`, `pool_parity`, `vld_parity`.
 
+## 2.5 AuthTags half-flit signals
+
+The model exposes the flattened AuthTags half-flit sideband on the request,
+read-response, and write-response groups:
+
+```
+upli_auth_tags_sig {
+  tag[4]        // up to four 64-bit AuthTags
+  valid         // one valid bit per tag
+  tag_parity[4] // even parity per valid tag; 0 when invalid
+  vld_parity    // even parity over valid[3:0]
+}
+```
+
+It is available as `upli_req_sig.auth_tags`, `upli_rr_sig.auth_tags`, and
+`upli_wr_sig.auth_tags`. Helpers: `upli_fill_auth_tags_parity()` and
+`upli_check_auth_tags_parity()`.
+
+The RTL/TL/DL placement of the 32-byte half-flit is design-dependent; the
+model exposes the signals and does not assume a fixed position. The reference top signal list is flattened in the same way.
+
 ## 3. Parity semantics
 
 All parity is **even parity**. The reference UPLI signal list names the

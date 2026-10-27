@@ -14,6 +14,13 @@ namespace ualink {
 
 class ualink_uart;
 
+struct upli_auth_tags_sig {
+  std::array<uint64_t, 4> tag{};
+  uint8_t valid = 0;                 
+  std::array<uint8_t, 4> tag_parity{};
+  uint8_t vld_parity = 0;            
+};
+
 struct upli_req_sig {
   bool     valid = false;
   bool     ready = false;
@@ -30,6 +37,7 @@ struct upli_req_sig {
   
   bool     has_auth = false;
   uint64_t auth_tag = 0;
+  upli_auth_tags_sig auth_tags;      
   
   
   
@@ -74,6 +82,7 @@ struct upli_rr_sig {
   uint16_t srcaccid = 0, dstaccid = 0;   
   bool     has_auth = false;             
   uint64_t auth_tag = 0;                 
+  upli_auth_tags_sig auth_tags;          
   uint8_t  type_info = 0;                
   std::array<uint8_t, 8> data_parity{};
   uint8_t  auth_tag_parity = 0;
@@ -89,6 +98,7 @@ struct upli_wr_sig {
   uint16_t srcaccid = 0, dstaccid = 0;   
   bool     has_auth = false;             
   uint64_t auth_tag = 0;                 
+  upli_auth_tags_sig auth_tags;          
   uint8_t  type_info = 0;                
   uint8_t  auth_tag_parity = 0;
   uint8_t  pool_parity = 0;
@@ -131,6 +141,9 @@ void    upli_fill_wr_parity(upli_wr_sig& w);
 bool    upli_check_wr_parity(const upli_wr_sig& w);
 
 uint8_t upli_credit_vld_parity(bool vld = true);
+
+void    upli_fill_auth_tags_parity(upli_auth_tags_sig& a);
+bool    upli_check_auth_tags_parity(const upli_auth_tags_sig& a);
 
 class ualink_upli_port {
  public:
