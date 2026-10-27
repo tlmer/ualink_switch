@@ -29,6 +29,8 @@ UPLI_PORT_CONTRACT.md    signal-level UPLI port contract
 - UPLI parity signals (2026-10-27 list): address, fields, AuthTag, data lanes,
   byte enable, pool, valid, and credit-valid parity; even parity, TX checked
   and RX generated.
+- Flattened AuthTags half-flit sideband (`tag[4]`, `valid`, `tag_parity[4]`,
+  `vld_parity`) on the request/read-response/write-response groups.
 - Switch fabric: unicast, multicast, QoS/VC, WRR, adaptive routing,
   out-of-order reordering, replay/backpressure, 1..32 ports.
 - INC: reduce/barrier, full reduce-op/data-type table (FP8 E5M2/E4M3, FP16,
