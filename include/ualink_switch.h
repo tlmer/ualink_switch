@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "ualink_dl.h"
+#include "ualink_block_encoding.h"
 
 namespace ualink {
 
@@ -374,6 +375,14 @@ struct block_cfg {
   int      gateway_port = -1;
   bool     root = true;
   std::vector<uint16_t> remote_members;
+  
+  
+  
+  
+  bool     ctrl_valid = false;
+  uint8_t  btype = 0, ctype = 0, ropdt = 0, rmode = 0;
+  uint32_t len = 0, xsize = 0, ysize = 0, ssize = 0, ssize2 = 0, sseed = 0;
+  uint64_t i_off = 0, o_off = 0, s_off = 0;
 };
 
 struct block_status_info {
@@ -469,6 +478,11 @@ struct switch_cfg {
   bool adaptive             = false;
   bool adaptive_spray       = false;
   bool adaptive_flow_affinity = true;
+  
+  
+  
+  
+  bool red_no_flow_region     = false;
   int  adaptive_hysteresis  = 1;  
   
   
@@ -623,6 +637,13 @@ class ualink_switch {
   
   int  block_allocate(int owner_port, const block_cfg& cfg);
   
+  
+  int  block_allocate_ctrl(int owner_port, const block_ctrl& ctrl,
+                           uint8_t group_id,
+                           const std::vector<uint16_t>& members,
+                           uint8_t numbeats, uint16_t epoch,
+                           std::string* err = nullptr);
+  
   bool block_deallocate(uint8_t block_id);
   
   
@@ -643,6 +664,9 @@ class ualink_switch {
   void set_red_block_no_gateway(bool on)  { red_block_no_gateway_ = on; }
   void set_red_block_group_ignore(bool on) { red_block_group_ignore_ = on; }
   void set_red_block_no_carry(bool on)    { red_block_no_carry_ = on; }
+  
+  
+  void set_red_block_gw_fp_first(bool on) { red_block_gw_fp_first_ = on; }
   uint64_t collective_completed() const { return st_.coll_completed; }
   uint64_t collective_group_miss() const { return st_.coll_group_miss; }
   void set_red_coll_no_group(bool on) { red_coll_no_group_ = on; }
@@ -687,6 +711,7 @@ class ualink_switch {
   
   void set_adaptive(bool on, bool spray = false);
   void set_adaptive_flow_affinity(bool on) { cfg_.adaptive_flow_affinity = on; }
+  void set_red_no_flow_region(bool on) { cfg_.red_no_flow_region = on; }
   bool adaptive_enabled() const { return cfg_.adaptive; }
   uint64_t adaptive_selections() const { return st_.adaptive_sel; }
   uint64_t adaptive_reroute_count() const { return st_.adaptive_reroutes; }
@@ -911,6 +936,18 @@ class ualink_switch {
     bool     dacc_used = false;
     bool     remote_seen = false;   
     bool     waiting = false;       
+    
+    
+    
+    std::array<uint8_t, 64> remote_data{};
+    bool     remote_valid = false;
+    bool     remote_applied = false;
+    
+    
+    
+    std::array<std::array<uint8_t, 64>, 8> remote_mix{};
+    uint8_t  remote_mix_mask = 0;
+    uint8_t  remote_mix_count = 0;
   };
 
   struct port_state {
@@ -990,7 +1027,8 @@ class ualink_switch {
   bool handle_block_frame(int src_port, const tx_frame& f);
   bool handle_block_gateway(int src_port, const tx_frame& f);
   void block_send_gateway(const block_cb& cb, uint8_t beat,
-                          const std::array<uint8_t, 64>& data, uint8_t kind);
+                          const std::array<uint8_t, 64>& data, uint8_t kind,
+                          uint8_t total = 0);
   void block_step();
   void block_age();
   bool block_apply(block_sub& s);
@@ -1002,10 +1040,19 @@ class ualink_switch {
                            const std::array<uint8_t, 64>& data,
                            uint8_t status);
   void block_finish(block_cb& cb, block_round& r, bool send_gw_final);
+  
+  void block_encode_dacc(const block_cb& cb, const block_round& r,
+                         std::array<uint8_t, 64>& out) const;
+  void block_encode_dacc_mixed(const block_cb& cb, const block_round& r,
+                               int j, std::array<uint8_t, 64>& out) const;
+  void block_apply_remote_fp(block_cb& cb, block_round& r);
+  void block_apply_remote_mixed(block_cb& cb, block_round& r, int j,
+                                const std::array<uint8_t, 64>& data);
   void block_pack(const block_cfg& cfg, const std::array<uint8_t, 64>& in,
                   std::array<uint8_t, 64>& out) const;
   void block_unpack_mask(const block_cfg& cfg,
-                         std::array<uint8_t, 64>& d) const;
+                         std::array<uint8_t, 64>& d,
+                         int eb_override = 0) const;
   uint64_t block_key(uint8_t block_id, uint8_t beat, uint16_t epoch) const;
 
   
@@ -1084,6 +1131,7 @@ class ualink_switch {
   bool red_block_no_gateway_ = false;
   bool red_block_group_ignore_ = false;
   bool red_block_no_carry_ = false;
+  bool red_block_gw_fp_first_ = false;
   bool red_coll_no_carry_ = false;
 
   bool red_route_  = false;

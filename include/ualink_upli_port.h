@@ -86,7 +86,8 @@ struct upli_rr_sig {
   uint8_t  type_info = 0;                
   std::array<uint8_t, 8> data_parity{};
   uint8_t  auth_tag_parity = 0;
-  uint8_t  vld_parity = 0;
+  uint8_t  fields_parity = 0;   
+  uint8_t  vld_parity = 0;      
 };
 
 struct upli_wr_sig {
@@ -102,7 +103,8 @@ struct upli_wr_sig {
   uint8_t  type_info = 0;                
   uint8_t  auth_tag_parity = 0;
   uint8_t  pool_parity = 0;
-  uint8_t  vld_parity = 0;
+  uint8_t  fields_parity = 0;   
+  uint8_t  vld_parity = 0;      
 };
 
 struct upli_port_stats {
@@ -130,12 +132,14 @@ bool    upli_check_od_parity(const upli_od_sig& d);
 
 uint8_t upli_rr_data_parity(const upli_rr_sig& r, int lane);
 uint8_t upli_rr_auth_parity(const upli_rr_sig& r);
+uint8_t upli_rr_fields_parity(const upli_rr_sig& r);
 uint8_t upli_rr_vld_parity(const upli_rr_sig& r);
 void    upli_fill_rr_parity(upli_rr_sig& r);
 bool    upli_check_rr_parity(const upli_rr_sig& r);
 
 uint8_t upli_wr_auth_parity(const upli_wr_sig& w);
 uint8_t upli_wr_pool_parity(const upli_wr_sig& w);
+uint8_t upli_wr_fields_parity(const upli_wr_sig& w);
 uint8_t upli_wr_vld_parity(const upli_wr_sig& w);
 void    upli_fill_wr_parity(upli_wr_sig& w);
 bool    upli_check_wr_parity(const upli_wr_sig& w);

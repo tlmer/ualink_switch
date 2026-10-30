@@ -19,8 +19,8 @@ port; the controller behavior below those signals belongs to the DUT.
 ## 2. Package layout
 
 ```
-include/                 public headers (22)
-lib/libualink_model.a    static model library (21 objects)
+include/                 public headers (23)
+lib/libualink_model.a    static model library (22 objects)
 smoke/                   green/red self-tests (build from include+lib only)
 example/                 minimal end-to-end example
 console/                 standalone interactive console (no simulator)
@@ -207,6 +207,22 @@ Bank addresses are encoded with
 `SC_UPLI_TX_REQ/TX_OD/TX_RR/TX_WR/RX_REQ/RX_OD/RX_RR/RX_WR/RX_CONGESTION`.
 TX operations use write payloads (signal struct); RX operations use read
 payloads. The wrapper is built separately and requires SystemC 2.3.x.
+
+### 6.6 Cross-switch INC / Block Collectives
+
+For multi-switch collectives the leaf sends an encoded aggregate block to the
+root; the root applies it only after all local contributions, giving a
+deterministic two-level order (local members in arrival order, then the leaf).
+FP Add accepts an output dtype wider than the input: for a non-strided layout
+the element-width ratio is 2..8 and the leaf sends one encoded output-dtype
+block per output beat; a strided layout keeps one output beat per input beat.
+A shape that cannot be expressed (invalid ratio, or more than 255 output beats
+in the 8-bit beat index) is rejected at block allocation rather than wrapped.
+
+`ualink_block_encoding.h` exposes the wire codec: `encode_block_ctrl` /
+`decode_block_ctrl` for the 64-byte control block, the request address/payload
+codecs, and the allocate/deallocate status byte plus the invoke status words.
+`ualink_switch::block_allocate_ctrl` allocates from a decoded control block.
 
 ## 7. Configuration and DTS
 

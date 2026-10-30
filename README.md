@@ -36,6 +36,13 @@ UPLI_PORT_CONTRACT.md    signal-level UPLI port contract
 - INC: reduce/barrier, full reduce-op/data-type table (FP8 E5M2/E4M3, FP16,
   BF16, FP32, FP64, integer), mixed-precision add, rounding modes, Group
   Table, Block Collectives, multi-switch gateway.
+- Cross-switch INC/Block Collectives: the leaf ships an encoded aggregate and
+  the root applies it after its local contributions (deterministic two-level
+  order). FP Add supports mixed precision (element-width ratios 2..8, e.g.
+  FP16 to FP32) and strided mixed layouts; shapes that cannot be expressed
+  (invalid ratio or more than 255 output beats) are rejected at allocation.
+- `ualink_block_encoding.h`: encode/decode helpers for the 64-byte Block
+  Collective control block, request address/payload, and status words.
 - Security: TL compression + AuthTags, AES-GCM-256 tag support (OpenSSL),
   key rotation, DL link FSM/NOP keepalive.
 - Manageability 1.0: attributes, Control() phases, keepalive/dead, discovery
