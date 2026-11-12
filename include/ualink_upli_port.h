@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <deque>
 #include <memory>
+#include <vector>
 
 #include "ualink_switch.h"
 
@@ -247,6 +248,14 @@ class ualink_upli_port {
     uint64_t addr = 0;
     uint16_t srcaccid = 0, dstaccid = 0;
     uint8_t beats_sent = 0;
+    
+    
+    
+    bool is_collective = false;
+    uint8_t coll_cmd = 0;
+    uint16_t coll_group = 0;
+    uint8_t coll_rcode = 0, coll_rounding = 0, coll_attr = 0;
+    std::vector<uint8_t> coll_data;
   };
 
   bool send_frame(tx_frame& f);

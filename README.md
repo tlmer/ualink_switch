@@ -51,6 +51,17 @@ UPLI_PORT_CONTRACT.md    signal-level UPLI port contract
 - CPER file-backed non-volatile store (atomic write, magic/version/FNV-1a).
 - SystemC/TLM wrapper: APB target socket + N-port UPLI bank socket.
 
+## Recent fixes (2026-11-12)
+
+- UPLI OrigData channel no longer delivers read-response data: RD_RSP data
+  stays on the read-response channel, so a UPLI completer never sees a data
+  beat with no matching request.
+- Collective final ReadReduce response follows the UALink INC contract:
+  `RdRspTypeInfo = 2'b10` and `RdRspNumBeats = beats - 1`; the read/write
+  response parity includes TypeInfo when INC support is enabled.
+- The delivery library is rebuilt from the current sources (23 objects,
+  including the ECC SRAM reference object).
+
 ## Scope
 
 No UALink controller, PHY, PCIe controller, IOMMU, NTB, complete PCIe switch

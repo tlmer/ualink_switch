@@ -439,6 +439,18 @@ struct switch_cfg {
   bool security        = false;  
   uint16_t auth_key    = 0x5A5A;
   
+  
+  
+  
+  
+  
+  
+  bool security_enable = false;
+  
+  
+  
+  bool credit_init_auto = false;
+  
   bool upli_conn       = false;  
   bool upli_parity     = false;  
   bool upli_sig_parity = false;  
@@ -730,6 +742,11 @@ class ualink_switch {
   uint64_t ooo_flows() const { return st_.ooo_flows; }
   void set_red_no_perf(bool on) { red_no_perf_ = on; }
   void set_red_no_auth(bool on) { red_no_auth_ = on; }
+  
+  void set_red_security_leak(bool on) { red_security_leak_ = on; }
+  
+  bool security_active() const { return cfg_.security || cfg_.security_enable; }
+  bool red_security_leak() const { return red_security_leak_; }
   void set_red_no_decompress(bool on) { red_no_decompress_ = on; }
   void set_red_qos_rr(bool on) { red_qos_rr_ = on; }
   void set_red_qos_nomap(bool on) { red_qos_nomap_ = on; }
@@ -1109,6 +1126,7 @@ class ualink_switch {
   bool red_no_perf_ = false;
   bool red_no_auth_ = false;
   bool red_no_decompress_ = false;
+  bool red_security_leak_ = false;
 
   
   std::vector<inc_group_cfg> inc_groups_;   

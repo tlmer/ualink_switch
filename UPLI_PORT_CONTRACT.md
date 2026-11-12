@@ -69,6 +69,17 @@ It is available as `upli_req_sig.auth_tags`, `upli_rr_sig.auth_tags`, and
 The RTL/TL/DL placement of the 32-byte half-flit is design-dependent; the
 model exposes the signals and does not assume a fixed position. The reference top signal list is flattened in the same way.
 
+**Security gate (VIP interop, 2026-11-10).** `switch_cfg::security_enable`
+defaults to **off** because the UAL VIP has no Security support.
+With security off the switch emits zeros on every AuthTag signal
+(`has_auth=0`, `auth_tag=0`, flattened `auth_tags` tag/valid/parity all
+zero) and performs no ingress verification. Set `security_enable=1` (or the
+legacy `security` flag) to carry and verify AuthTags. `switch_cfg::credit_init_auto`
+optionally completes the UPLI credit-initialization handshake at start-up
+(counterpart of the VIP `bypass_credit_initialization_state` switch).
+Both are covered by `test_vip_interop` (green + `security_leak` /
+`no_credit_auto` reds).
+
 ## 3. Parity semantics
 
 All parity is **even parity**. The reference UPLI signal list names the
